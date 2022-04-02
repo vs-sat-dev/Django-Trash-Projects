@@ -7,6 +7,6 @@
 <body>
 Hi {{ user.username }},
 Please click on the link to confirm your registration,
-http://{{ domain }}{% url 'email-activation' uidb64=uid token=token %}
+<a href="http://{{ domain }}{% url 'accounts:email-activation' uidb64=uid token=token %}">Confirm your mail</a>
 </body>
 </html>

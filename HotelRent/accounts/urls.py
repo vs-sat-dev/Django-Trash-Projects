@@ -3,8 +3,13 @@ from django.urls import path
 from . import views
 
 
+app_name = 'accounts'
+
 urlpatterns = [
     path('register', views.register, name='register'),
-    #path(r'email-activation/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',
-    path('email-activation/<uidb64>/<token>/', views.email_activation, name='email-activation')
+    path('email-activation/<uidb64>/<token>/', views.email_activation, name='email-activation'),
+    path('login', views.login_user, name='login'),
+    path('profile/<str:username>', views.profile, name='profile'),
+    path('logout', views.logout_user, name='logout'),
+    path('image-change', views.image_change, name='image-change'),
 ]

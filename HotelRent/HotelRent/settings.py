@@ -117,6 +117,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_ROOT = f'{BASE_DIR}/assets'
+MEDIA_URL = '/assets/'
+STATICFILES_DIRS = [f'{BASE_DIR}/static']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -135,4 +138,7 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_HOST_USER = 'fab953fb624831'
 EMAIL_HOST_PASSWORD = '57ece94f38d784'
 EMAIL_PORT = '2525'"""
+
+LOGIN_REDIRECT_URL = 'accounts:profile'
+LOGOUT_REDIRECT_URL = 'accounts:login'
 

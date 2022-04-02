@@ -16,7 +16,7 @@
     {{ errors }}
 {% endif %}
 
-<form action="{% url 'register' %}" method="POST">
+<form action="{% url 'accounts:register' %}" method="POST">
     {% csrf_token %}
     {{ form.username }}
     {{ form.email }}
