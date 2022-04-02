@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Sign-Up
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .errorlist {
+        color: #dc3545;
+    }
+</style>
+
+{% if errors %}
+    {{ errors }}
+{% endif %}
+
+<form action="{% url 'register' %}" method="POST">
+    {% csrf_token %}
+    {{ form.username }}
+    {{ form.email }}
+    {{ form.password1 }}
+    {{ form.password2 }}
+    <div class="form-check form-switch">
+      {{ form.terms_of_service }}
+      <label class="form-check-label" for="flexSwitchCheckDefault">I agree to the <a href="#">terms of service</a></label>
+    </div>
+    <input type="submit" class="btn btn-primary" value="Sign-Up" />
+</form>
+{% endblock %}
