@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign-In{% endblock %}
+
+{% block content %}
+
+{% if message %}
+    <div class="text-danger">{{ message }}</div>
+{% endif %}
+
+<form action="{% url 'hotels:hotels' %}" method="POST">
+    {% csrf_token %}
+    {{ form.category }}
+    {{ form.text }}
+    {{ form.city }}
+    <input type="submit" class="btn btn-primary" value="Login" />
+</form>
+{% endblock %}

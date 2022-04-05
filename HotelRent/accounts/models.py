@@ -21,3 +21,4 @@ post_save.connect(create_profile, sender=User)
 class EmailConfirmation(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     new_email = models.EmailField(null=False, blank=False, max_length=128)
+

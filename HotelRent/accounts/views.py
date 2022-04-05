@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout, authenticate, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode, urlencode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
@@ -110,6 +110,7 @@ def logout_user(request):
 
 @login_required(login_url='accounts:login')
 def profile(request, username):
+    message = request.GET.get('message')
     user = User.objects.get(username=username)
     profile = Profile.objects.get(user=user)
     if profile:
@@ -117,22 +118,29 @@ def profile(request, username):
         user_form = UserForm(instance=user)
         password_change_form = PasswordChangeForm()
         context = {'user': user, 'profile': profile, 'user_form': user_form, 'profile_form': profile_form,
-                   'password_change_form': password_change_form}
+                   'password_change_form': password_change_form, 'message': message}
         return render(request, 'profile.html', context=context)
 
 
 @login_required(login_url='accounts:login')
 def image_change(request):
+    message = None
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=Profile.objects.get(user=request.user))
         if form.is_valid:
             form.save()
+        else:
+            message = 'Invalid form'
 
-    return redirect(f'profile/{request.user.username}')
+    if message:
+        return redirect(f'profile/{request.user.username}?{urlencode({"message": message})}')
+    else:
+        return redirect(f'profile/{request.user.username}')
 
 
 @login_required(login_url='accounts:login')
 def email_change(request):
+    message = None
     if request.method == 'POST':
         form = UserForm(request.POST, instance=User.objects.get(username=request.user.username))
         if form.is_valid:
@@ -154,24 +162,35 @@ def email_change(request):
                 )
                 email.send()
                 print('Email was sent')
+            else:
+                message = 'Email already exist'
+        else:
+            message = 'Invalid form'
 
-    return redirect(f'profile/{request.user.username}')
+    if message:
+        return redirect(f'profile/{request.user.username}?{urlencode({"message": message})}')
+    else:
+        return redirect(f'profile/{request.user.username}')
 
 
 @login_required(login_url='accounts:login')
 def password_change(request):
+    message = None
     if request.method == 'POST':
         form = PasswordChangeForm(request.POST)
         if form.is_valid:
             user = authenticate(username=request.user.username, password=form.data['old_password'])
-            print('First step')
-            print(user.password)
             if user:
-                print('Second step')
                 if form.data['new_password'] == form.data['new_password_confirm']:
-                    print('Third step')
                     user.set_password(form.data['new_password'])
                     user.save()
                     update_session_auth_hash(request, user)
+                else:
+                    message = 'Passwords doesn\'t match'
+            else:
+                message = 'Wrong old password'
 
-    return redirect(f'profile/{request.user.username}')
+    if message:
+        return redirect(f'profile/{request.user.username}?{urlencode({"message": message})}')
+    else:
+        return redirect(f'profile/{request.user.username}')
