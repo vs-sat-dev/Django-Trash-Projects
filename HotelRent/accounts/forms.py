@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, EmailValidator
 
+from .models import Profile
+
 
 class RegisterForm(UserCreationForm):
     username = forms.CharField(max_length=32,
@@ -39,3 +41,34 @@ class LoginForm(forms.Form):
                                widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+    image = forms.ImageField(required=False, widget=forms.FileInput(), max_length=128)
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    email = forms.EmailField(max_length=128,
+                             validators=[EmailValidator],
+                             widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
+
+
+class PasswordChangeForm(forms.Form):
+    old_password = forms.CharField(
+        max_length=32, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Old password'}),
+        validators=[MinLengthValidator(7), MaxLengthValidator(33)]
+    )
+    new_password = forms.CharField(
+        max_length=32, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'New password'}),
+        validators=[MinLengthValidator(7), MaxLengthValidator(33)]
+    )
+    new_password_confirm = forms.CharField(
+        max_length=32, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password'}),
+        validators=[MinLengthValidator(7), MaxLengthValidator(33)]
+    )

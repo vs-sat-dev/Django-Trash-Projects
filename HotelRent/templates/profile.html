@@ -4,12 +4,10 @@
 
 {% block content %}
 
-{% load static %}
-
 <div class="container">
     <div class="row">
       <div class="col-4">
-        <img src="{% static profile.image.url %}" width="100" height="100" /><br />
+        <img src="{{ profile.image.url }}" width="100" height="100" /><br />
         {{ user.username }}<br />
         Your balance: {{ profile.balance }}
         <br /> <br /><br />
@@ -26,13 +24,20 @@
           <div class="tab-pane fade show active" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">
             <h1>Settings</h1><br /><br />
 
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticImageBackdrop">
               Change image
-            </button><br />
+            </button>
+            <br /><br />
 
-            <a href="#">Change Image</a><br />
-            <a href="#">Change Email</a><br />
-            <a href="#">Change Password</a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticEmailBackdrop">
+              Change email
+            </button>
+            <br /><br />
+
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticPasswordBackdrop">
+              Change password
+            </button>
+
           </div>
           <div class="tab-pane fade" id="list-balance" role="tabpanel" aria-labelledby="list-balance-list">Balance</div>
           <div class="tab-pane fade" id="list-ads" role="tabpanel" aria-labelledby="list-ads-list">Ads</div>
@@ -42,17 +47,61 @@
       </div>
     </div>
 
-  <div class="modal modal-dialog modal-dialog-centered fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal modal-dialog modal-dialog-centered fade" id="staticImageBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">Change image</h5>
+          <h5 class="modal-title" id="staticImageBackdropLabel">Change image</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form method="POST" enctype="multipart/form-data" action="{% url 'accounts:image-change' %}">
             {% csrf_token %}
-            <input type="file" name="image" />
+            {{ profile_form.user.as_hidden }}
+            {{ profile_form.balance.as_hidden }}
+            {{ profile_form.image }}
+            <div class="modal-footer">
+              <input type="submit" class="btn btn-primary" value="Save" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-dialog modal-dialog-centered fade" id="staticEmailBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticEmailBackdropLabel">Change email</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" enctype="multipart/form-data" action="{% url 'accounts:email-change' %}">
+            {% csrf_token %}
+            {{ user_form.email }}
+            <div class="modal-footer">
+              <input type="submit" class="btn btn-primary" value="Save" />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-dialog modal-dialog-centered fade" id="staticPasswordBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticPasswordBackdropLabel">Change password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" enctype="multipart/form-data" action="{% url 'accounts:password-change' %}">
+            {% csrf_token %}
+            {{ password_change_form.old_password }}<br />
+            {{ password_change_form.new_password }}<br />
+            {{ password_change_form.new_password_confirm }}
             <div class="modal-footer">
               <input type="submit" class="btn btn-primary" value="Save" />
             </div>

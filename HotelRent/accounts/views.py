@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -10,8 +10,8 @@ from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
 import six
 
-from.forms import RegisterForm, LoginForm
-from .models import Profile
+from.forms import RegisterForm, LoginForm, ProfileForm, UserForm, PasswordChangeForm
+from .models import Profile, EmailConfirmation
 
 
 class TokenGenerator(PasswordResetTokenGenerator):
@@ -65,9 +65,15 @@ def email_activation(request, uidb64, token):
     except:
         user = None
     if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
+        if user.is_active:
+            context = {'message': 'Your email was changed successfully.'}
+            email_confirmation = EmailConfirmation.objects.filter(user=user).first()
+            user.email = email_confirmation.new_email
+            email_confirmation.delete()
+        else:
+            context = {'message': 'Thank you for your email confirmation. Now you can login your account.'}
+            user.is_active = True
         user.save()
-        context = {'message': 'Thank you for your email confirmation. Now you can login your account.'}
         return render(request, 'email-activation.html', context=context)
     else:
         context = {'message': 'Activation link is invalid!'}
@@ -106,12 +112,66 @@ def logout_user(request):
 def profile(request, username):
     user = User.objects.get(username=username)
     profile = Profile.objects.get(user=user)
-    context = {'user': user, 'profile': profile}
-    return render(request, 'profile.html', context=context)
+    if profile:
+        profile_form = ProfileForm(instance=profile)
+        user_form = UserForm(instance=user)
+        password_change_form = PasswordChangeForm()
+        context = {'user': user, 'profile': profile, 'user_form': user_form, 'profile_form': profile_form,
+                   'password_change_form': password_change_form}
+        return render(request, 'profile.html', context=context)
 
 
 @login_required(login_url='accounts:login')
 def image_change(request):
     if request.method == 'POST':
-        form = request.POST
-        print('Form image ', form.getlist('image'))
+        form = ProfileForm(request.POST, request.FILES, instance=Profile.objects.get(user=request.user))
+        if form.is_valid:
+            form.save()
+
+    return redirect(f'profile/{request.user.username}')
+
+
+@login_required(login_url='accounts:login')
+def email_change(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=User.objects.get(username=request.user.username))
+        if form.is_valid:
+            if User.objects.filter(email=form.data['email']).first() is None \
+              and EmailConfirmation.objects.filter(new_email=form.data['email']).first() is None:
+                email_confirmation = EmailConfirmation.objects.create(user=request.user, new_email=form.data['email'])
+
+                current_site = get_current_site(request)
+                mail_subject = 'Verify your email address'
+                message = render_to_string('email.html', {
+                    'user': request.user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(request.user.id)),
+                    'token': account_activation_token.make_token(request.user),
+                })
+                to_email = form.data['email']
+                email = EmailMessage(
+                    mail_subject, message, to=[to_email]
+                )
+                email.send()
+                print('Email was sent')
+
+    return redirect(f'profile/{request.user.username}')
+
+
+@login_required(login_url='accounts:login')
+def password_change(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid:
+            user = authenticate(username=request.user.username, password=form.data['old_password'])
+            print('First step')
+            print(user.password)
+            if user:
+                print('Second step')
+                if form.data['new_password'] == form.data['new_password_confirm']:
+                    print('Third step')
+                    user.set_password(form.data['new_password'])
+                    user.save()
+                    update_session_auth_hash(request, user)
+
+    return redirect(f'profile/{request.user.username}')
