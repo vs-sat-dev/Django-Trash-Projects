@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Create new hotel{% endblock %}
+
+{% block content %}
+
+{% if message %}
+    <div class="text-danger">{{ message }}</div>
+{% endif %}
+
+<form action="{% url 'hotels:create-hotel' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.title }}<br /><br />
+    {{ form.image }}<br /><br />
+    {{ form.price }}<br /><br />
+    {{ form.media }}{{ form.description }}<br /><br />
+    {{ form.category }}<br /><br />
+    {{ form.facilities }}<br /><br />
+    {{ form.state }}<br /><br />
+    {{ form.region }}<br /><br />
+    {{ form.city }}<br /><br />
+    {{ form.street }}<br /><br />
+    {{ form.house }}<br /><br />
+    {{ form.adress }}<br /><br />
+    {{ form.coord_x }}<br /><br />
+    {{ form.coord_y }}<br /><br />
+    <input type="submit" class="btn btn-primary" value="Publish" />
+</form>
+{% endblock %}

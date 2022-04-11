@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
     'hotels.apps.HotelsConfig',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [

@@ -8,11 +8,50 @@
     <div class="text-danger">{{ message }}</div>
 {% endif %}
 
+{% if category %}
+{% endif %}
+
+{% if text %}
+{% endif %}
+
+{% if city %}
+{% endif %}
+
 <form action="{% url 'hotels:hotels' %}" method="POST">
     {% csrf_token %}
     {{ form.category }}
     {{ form.text }}
     {{ form.city }}
-    <input type="submit" class="btn btn-primary" value="Login" />
+    <input type="submit" class="btn btn-primary" value="Search" />
 </form>
+
+{% load tags %}
+
+<div class="container">
+    {% for hotels_batch in hotels|batch:4 %}
+    <div class="row">
+        {% for hotel in hotels_batch %}
+        <div class="col-3">
+            <img src="{{ hotel.image.url }}" width="100" height="100" /><br /><br />
+            <a href="{% url 'hotels:hotel-detail' hotel.city.city hotel.category.category hotel.title %}">{{ hotel.title }}</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+<div>
+    {% if hotels.has_previous %}
+    <a href="?page=1&category={{ category|urlencode }}&text={{ text|urlencode }}&city={{ city|urlencode }}">First</a>
+    <a href="?page={{ hotels.previous_page_number }}&category={{ category|urlencode }}&text={{ text|urlencode }}&city={{ city|urlencode }}">Previous</a>
+    {% endif %}
+
+    {{ hotels.number }} of {{ hotels.paginator.num_pages }}
+
+    {% if hotels.has_next %}
+    <a href="?page={{ hotels.next_page_number }}&category={{ category|urlencode }}&text={{ text|urlencode }}&city={{ city|urlencode }}">Next</a>
+    <a href="?page={{ hotels.paginator.num_pages }}&category={{ category|urlencode }}&text={{ text|urlencode }}&city={{ city|urlencode }}">Last</a>
+    {% endif %}
+</div>
+
 {% endblock %}
