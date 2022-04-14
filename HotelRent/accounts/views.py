@@ -90,11 +90,15 @@ def login_user(request):
             print('Form data password ', form.data['password'])
             username = User.objects.get(email=form.data['email']).username
             user = authenticate(username=username, password=form.data['password'])
-            if user is not None:
-                login(request, user)
-                return redirect(f'profile/{username}')
+            if user.is_active:
+                if user is not None:
+                    login(request, user)
+                    return redirect(f'profile/{username}')
+                else:
+                    context = {'form': form, 'message': 'The email address or password is wrong.'}
+                    return render(request, 'login.html', context=context)
             else:
-                context = {'form': form, 'message': 'The email address or password is wrong.'}
+                context = {'form': form, 'message': 'The email address is not confirmed.'}
                 return render(request, 'login.html', context=context)
     else:
         form = LoginForm()

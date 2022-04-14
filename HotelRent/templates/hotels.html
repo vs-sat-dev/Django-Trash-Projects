@@ -1,20 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Sign-In{% endblock %}
+{% block title %}Hotels{% endblock %}
 
 {% block content %}
 
 {% if message %}
     <div class="text-danger">{{ message }}</div>
-{% endif %}
-
-{% if category %}
-{% endif %}
-
-{% if text %}
-{% endif %}
-
-{% if city %}
 {% endif %}
 
 <form action="{% url 'hotels:hotels' %}" method="POST">
@@ -33,7 +24,7 @@
         {% for hotel in hotels_batch %}
         <div class="col-3">
             <img src="{{ hotel.image.url }}" width="100" height="100" /><br /><br />
-            <a href="{% url 'hotels:hotel-detail' hotel.city.city hotel.category.category hotel.title %}">{{ hotel.title }}</a>
+            <a href="{% url 'hotels:hotel-detail' hotel.city.city hotel.category.category hotel.slug %}">{{ hotel.title }}</a>
         </div>
         {% endfor %}
     </div>
@@ -53,5 +44,26 @@
     <a href="?page={{ hotels.paginator.num_pages }}&category={{ category|urlencode }}&text={{ text|urlencode }}&city={{ city|urlencode }}">Last</a>
     {% endif %}
 </div>
+
+{% if category %}
+<script>
+    let form_category = document.getElementById('id_category')
+    form_category.value = '{{ category }}'
+</script>
+{% endif %}
+
+{% if text %}
+<script>
+    let form_text = document.getElementById('id_text')
+    form_text.value = '{{ text }}'
+</script>
+{% endif %}
+
+{% if city %}
+<script>
+    let form_city = document.getElementById('id_city')
+    form_city.value = '{{ city }}'
+</script>
+{% endif %}
 
 {% endblock %}

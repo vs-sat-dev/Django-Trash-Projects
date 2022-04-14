@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django_unique_slugify import unique_slugify
 from ckeditor.fields import RichTextField
 
 
@@ -38,15 +40,17 @@ class Facilities(models.Model):
 
 
 class Hotel(models.Model):
-    title = models.CharField(max_length=64)
+    title = models.CharField(max_length=128)
+    slug = models.SlugField(max_length=128, unique=True, db_index=True)
     image = models.ImageField(upload_to='hotel_images', default='hotel_images/empty.png')
     price = models.IntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    sort_date = models.DateTimeField(auto_now=True)
+    sort_date = models.DateTimeField(auto_now_add=True)
 
     description = RichTextField()
 
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
@@ -58,4 +62,8 @@ class Hotel(models.Model):
     adress = models.CharField(max_length=256)
     coord_x = models.FloatField()
     coord_y = models.FloatField()
+
+    def save(self, *args, **kwargs):
+        unique_slugify(self, self.title, slug_field_name='slug')
+        super().save(*args, **kwargs)
 

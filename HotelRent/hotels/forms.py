@@ -23,6 +23,8 @@ class CreateHotelForm(forms.ModelForm):
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     facilities = models.ForeignKey(Facilities, on_delete=models.CASCADE)"""
 
+    #author = forms.CharField(max_length=32)
+
     street = forms.CharField(max_length=64)
     house = forms.CharField(max_length=64)
     adress = forms.CharField(max_length=256)
@@ -32,4 +34,4 @@ class CreateHotelForm(forms.ModelForm):
     class Meta:
         model = Hotel
         fields = '__all__'
-        exclude = ['created', 'updated', 'sort_date']
+        exclude = ['slug', 'created', 'updated', 'sort_date']
