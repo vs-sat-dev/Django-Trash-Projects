@@ -12,4 +12,16 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['title', 'body', 'author']
+        
+class PostCreateSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(validators=[LessThanValidator(3), GreaterThanValidator(128)])
+    body = serializers.CharField(validators=[LessThanValidator(3), GreaterThanValidator(4096)])
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    
+    class Meta:
+        model = Post
+        fields = ['title', 'body', 'author']
+    
+    
+
 
