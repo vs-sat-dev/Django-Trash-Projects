@@ -21,4 +21,5 @@ urlpatterns = [
     path('', include('notiffications.urls')),
     path('accounts/', include('accounts.urls')),
     path('rooms/', include('room.urls')),
+    path('blog/', include('blog.urls')),
 ]

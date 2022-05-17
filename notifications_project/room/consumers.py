@@ -12,7 +12,7 @@ class ChatConsumer(WebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
         
-        print('Room Name: ', self.room_name)
+        #print('Room Name: ', self.room_name)
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -43,7 +43,7 @@ class ChatConsumer(WebsocketConsumer):
                 
                 msg = Message.objects.create(room=room, message=message, user=user)
                 
-                print('Got message ', message, ' user ', user, ' room ', Room, ' msg ', msg)
+                #print('Got message ', message, ' user ', user, ' room ', Room, ' msg ', msg)
 
                 # Send message to room group
                 async_to_sync(self.channel_layer.group_send)(
@@ -62,22 +62,27 @@ class ChatConsumer(WebsocketConsumer):
                 
                 
             except:
-                print('Room was not found')
+                print('Room was not found 1')
             
         elif type == 'read':
             room_name = self.scope['url_route']['kwargs']['room_name']
-            print('room_name ', room_name)
+            #print('room_name ', room_name)
+            print('Read1: ')
             try:
                 room = Room.objects.get(roomname=room_name)
                 try:
                     visit = Visit.objects.filter(user=user, room=room).first()
+                    print('Read2.1: ', visit.last_visit)
                     visit.last_visit = now()
+                    visit.save()
+                    print('Read2.2: ', visit.last_visit)
                 except:
                     visit = Visit.objects.create(user=user, room=room, last_visit=now())
+                    print('Read3: ', visit.last_visit)
                 #print('type', type, ' user ', user)
                 #print('Visit user: ', visit.user, ' room ', visit.room, ' last_visit ', visit.last_visit)
             except:
-                print('Room was not found')
+                print('Room was not found 2')
 
     # Receive message from room group
     def chat_message(self, event):
@@ -94,7 +99,7 @@ class RoomNotificationConsumer(WebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = self.room_name
         
-        print('Room Name: ', self.room_name)
+        #print('Room Name: ', self.room_name)
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -120,19 +125,21 @@ class RoomNotificationConsumer(WebsocketConsumer):
         room_name = self.scope['url_route']['kwargs']['room_name'][:-13]
         user = self.scope['user']
         
-        print('Notification: ', message, ' room ', room_name)
+        #print('Notification: ', message, ' room ', room_name)
         try:
             room = Room.objects.get(roomname=room_name)
             
-            print('Notification user ', user, ' room ', Room)
+            #print('Notification user ', user, ' room ', Room)
             
             try:
                 visit = Visit.objects.filter(user=user, room=room).first()
-                messages = Message.objects.filter(room=room, created__lt=visit.last_visit)
-                print('Notification message: ', messages)
+                messages = Message.objects.filter(room=room, created__gt=visit.last_visit)
+                print('Notification message: ', messages, ' len ', len(messages),
+                      ' last_visit ', visit.last_visit)
                 # Send message to WebSocket
                 self.send(text_data=json.dumps({
-                    'message': message
+                    'message': len(messages),
+                    'room': room_name
                 }))
             except:
                 print('Visit was not found')

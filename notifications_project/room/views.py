@@ -51,7 +51,47 @@ class MessageViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin,
 class RoomListView(ListView):
     template_name = 'rooms.html'
     model = Room
+    
+    def get_context_data(self,**kwargs):
+        context = super(RoomListView,self).get_context_data(**kwargs)
+        
+        context['room_messages'] = []
+        context['len_messages'] = []
+        
+        for obj in context['object_list']:
+            print('Context: ', obj.roomname)
+            room_name = obj.roomname
+        
+            user = self.request.user
+            
+            context['room_messages'] += [room_name]
+            
+            try:
+                room = Room.objects.get(roomname=room_name)
+                try:
+                    visit = Visit.objects.filter(user=user, room=room).first()
+                    messages = Message.objects.filter(room=room, created__gt=visit.last_visit)
+                    context['len_messages'] += [len(messages)]
+                except:
+                    context['len_messages'] += [0]
+            except:
+                print('Room was not found 2')
+        
+        #context['picture'] = Picture.objects.filter(your_condition)
+        return context
  
 
 def room(request, room_name):
-    return render(request, 'chat.html', {'room_name': room_name})
+    
+    context = {'room_name': room_name}
+    
+    try:
+        room = Room.objects.get(roomname=room_name)
+        messages = Message.objects.filter(room=room)
+        context['messages'] = []
+        for msg in messages:
+            context['messages'] += [msg.message]
+    except:
+        print('Room was not found 3')
+    
+    return render(request, 'chat.html', context)

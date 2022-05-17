@@ -1,8 +1,11 @@
 from enum import unique
 from rest_framework import serializers, validators, permissions
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 from .validators import LessThanValidator, GreaterThanValidator
 

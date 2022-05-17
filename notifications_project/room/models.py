@@ -1,5 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class Room(models.Model):
@@ -18,8 +20,11 @@ class Message(models.Model):
     message = models.CharField(max_length=256)
     created = models.DateTimeField(auto_now_add=True)
     
+    class Meta:
+        ordering = ['created']
+    
     def __str__(self):
-        return self.message
+        return str(self.created)
 
 
 class Visit(models.Model):

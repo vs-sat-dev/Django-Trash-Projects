@@ -12,11 +12,17 @@
 
     <script>
         const roomNames = document.getElementsByName('rooms');
+        const token = location.search.split('token=')[1];
         roomNames.forEach((element) => {
             console.log(element.textContent);
             id = element.textContent;
 
+            let list_messages = {{ len_messages|safe }}
+            let list_rooms = {{ room_messages|safe }}
 
+            for(let i=0; i<list_messages.length; i++) {
+                document.getElementById(list_rooms[i] + '_notification').innerText = list_messages[i];
+            }
 
             const socket = new WebSocket(
                 'ws://'
@@ -25,12 +31,13 @@
                 + id
                 + '_notification'
                 + '/'
+                + '?token=' + token
             );
 
             socket.onmessage = function(event){
                 var data = JSON.parse(event.data);
-                console.log(data);
-                document.getElementById(id + '_notification').innerText = data.message;
+                console.log('data: ' + data + ' id ' + data.room);
+                document.getElementById(data.room + '_notification').innerText = data.message;
             }
 
           })
