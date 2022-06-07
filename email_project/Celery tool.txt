@@ -1,0 +1,20 @@
+
+pip install eventlet
+
+celery -A email_project worker --pool=eventlet
+
+celery -A email_project flower --address=127.0.0.6 --port=5566
+
+
+
+
+
+
+
+rabbitmq-plugins enable rabbitmq_management
+
+http://localhost:15672/
+
+
+
+Set-ExecutionPolicy RemoteSigned
